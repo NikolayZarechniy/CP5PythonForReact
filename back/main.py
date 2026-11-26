@@ -1,17 +1,14 @@
 from datetime import datetime
-
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 
 app = FastAPI(title="Чат в реальном времени")
 
 
 def now() -> str:
-    """Текущее время в формате ЧЧ:ММ:СС."""
     return datetime.now().strftime("%H:%M:%S")
 
 
 class ConnectionManager:
-    """Хранит активные соединения: имя пользователя -> WebSocket."""
 
     def __init__(self):
         self.active: dict[str, WebSocket] = {}
@@ -24,12 +21,10 @@ class ConnectionManager:
         self.active.pop(username, None)
 
     async def broadcast(self, message: dict):
-        """Отправляет сообщение всем активным клиентам."""
         for username, websocket in list(self.active.items()):
             try:
                 await websocket.send_json(message)
             except Exception:
-                # клиент уже отключился — просто убираем его
                 self.disconnect(username)
 
 

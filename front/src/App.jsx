@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 
-const WS_URL = 'ws://localhost:8000';
+const URL = 'http://localhost:8000';
 
 export default function App() {
   const [name, setName] = useState('');
@@ -11,12 +11,11 @@ export default function App() {
 
   const wsRef = useRef(null);
   const listRef = useRef(null);
-
-  // Подключаемся к WebSocket, когда пользователь вошёл в чат
+  
   useEffect(() => {
     if (!joined) return;
 
-    const ws = new WebSocket(`${WS_URL}/ws/${encodeURIComponent(name)}`);
+    const ws = new WebSocket(`${URL}/ws/${encodeURIComponent(name)}`);
     wsRef.current = ws;
     setStatus('Подключение...');
 
@@ -33,18 +32,15 @@ export default function App() {
       setStatus('Ошибка соединения: проверьте, что backend запущен на localhost:8000');
     };
 
-    // если сервер выключили, соединение просто закрывается — тоже показываем ошибку
     ws.onclose = () => {
       setStatus((prev) =>
         prev.startsWith('Ошибка') ? prev : 'Ошибка соединения: связь с сервером потеряна'
       );
     };
 
-    // закрываем соединение при выходе со страницы
     return () => ws.close();
   }, [joined, name]);
 
-  // прокрутка списка вниз при новом сообщении
   useEffect(() => {
     listRef.current?.scrollTo(0, listRef.current.scrollHeight);
   }, [messages]);
